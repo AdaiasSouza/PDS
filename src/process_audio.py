@@ -1,39 +1,68 @@
+"""_summary_
+
+    Returns:
+        _type_: _description_
+"""
 import os
 import librosa
 import numpy as np
+from scipy.signal import decimate
 
 
 def sound_vector(file_audio):
     """_summary_
 
     Args:
-        file_audio (_type_): _description_
+        file_audio (_type_): arquivo de audio
+
+    Returns:
+        _type_: vetor com o valor de amostras
+    """
+    audio_path = file_audio
+    vetor, sample_rate = librosa.load(audio_path, sr=None)
+
+    # Exibir algumas informações
+    print(f"Tamanho do vetor: {len(vetor)} Taxa de amostragem: {sample_rate} Hz")
+    return vetor, sample_rate
+
+def interpolar_vetor_numpy(vetor, novo_tamanho):
+    """_summary_
+
+    Args:
+        vetor (_type_): _description_
+        novo_tamanho (_type_): _description_
 
     Returns:
         _type_: _description_
     """
-    audio_path = file_audio
-    y, sr = librosa.load(audio_path, sr=None)
+    x_original = np.linspace(0, 1, len(vetor))
+    x_novo = np.linspace(0, 1, novo_tamanho)
+    return np.interp(x_novo, x_original, vetor)
 
-    # Exibir algumas informações
-    print(f"Vetor de valores (primeiros 10): {y[:10]}")
-    print(f"Tamanho do vetor: {len(y)}")
-    print(f"Taxa de amostragem: {sr} Hz")
 
-    # Normalizar o áudio (opcional)
-    y_normalizado = y / np.max(np.abs(y))
+def downsample_decimate(vetor, fator):
+    """_summary_
 
-    print(f"Vetor normalizado (primeiros 10): {y_normalizado[:10]}")
-    
-    return y, sr
+    Args:
+        vetor (_type_): _description_
+        fator (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return decimate(vetor, fator, ftype='iir')
 
 
 ROOT_FILE_4k = os.getcwd()[0:48]+'audio/4khz.wav'
 ROOT_FILE_8k = os.getcwd()[0:48]+'audio/8khz.wav'
 ROOT_FILE_16k = os.getcwd()[0:48]+'audio/16khz.wav'
 
-y_4k, sr_4k = sound_vector(file_audio=ROOT_FILE_4k)
-y_8k, sr_8k = sound_vector(file_audio=ROOT_FILE_8k)
-y_16k, sr_16k = sound_vector(file_audio=ROOT_FILE_16k)
+vetor_4k, sample_rate_4k = sound_vector(file_audio=ROOT_FILE_4k)
+vetor_8k, sample_rate_8k = sound_vector(file_audio=ROOT_FILE_8k)
+vetor_16k, sample_rate_16k = sound_vector(file_audio=ROOT_FILE_16k)
 
-    
+new_vetor_4k = interpolar_vetor_numpy(vetor_4k, len(vetor_8k))
+print(f'antes={len(vetor_4k)} depois={len(new_vetor_4k)}')
+
+new_vetor_16k = downsample_decimate(vetor_16k, 2)
+print(f'antes={len(vetor_16k)} depois={len(new_vetor_16k)}')
