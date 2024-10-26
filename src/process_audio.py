@@ -7,6 +7,7 @@ import os
 import librosa
 import numpy as np
 from scipy.signal import decimate
+from scipy.io.wavfile import write
 
 
 def sound_vector(file_audio):
@@ -53,6 +54,21 @@ def downsample_decimate(vetor, fator):
     return decimate(vetor, fator, ftype='iir')
 
 
+def salvar_audio(vetor, taxa_amostragem, nome_arquivo):
+    """_summary_
+
+    Args:
+        vetor (_type_): _description_
+        taxa_amostragem (_type_): _description_
+        nome_arquivo (_type_): _description_
+    """
+    # Normalizar e converter para int16 (padrão para áudio PCM)
+    vetor_normalizado = (vetor / np.max(np.abs(vetor)) * 32767).astype(np.int16)
+
+    # Salvar o áudio
+    write(nome_arquivo, taxa_amostragem, vetor_normalizado)
+    print(f"Áudio salvo como: {nome_arquivo}")
+
 ROOT_FILE_4k = os.getcwd()[0:48]+'audio/4khz.wav'
 ROOT_FILE_8k = os.getcwd()[0:48]+'audio/8khz.wav'
 ROOT_FILE_16k = os.getcwd()[0:48]+'audio/16khz.wav'
@@ -66,3 +82,5 @@ print(f'antes={len(vetor_4k)} depois={len(new_vetor_4k)}')
 
 new_vetor_16k = downsample_decimate(vetor_16k, 2)
 print(f'antes={len(vetor_16k)} depois={len(new_vetor_16k)}')
+
+salvar_audio(new_vetor_4k, 4000, 'new_4khz.wav')
