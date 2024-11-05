@@ -2,7 +2,13 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 import numpy as np
 import matplotlib.pyplot as plt
-# from datetime import datetime
+from datetime import datetime
+
+
+def data_hora():
+    data_time = datetime.now()
+    data_time_format = data_time.strftime("%d-%m-%Y-%H-%M-%S")
+    return data_time_format
 
 
 def record_sound(sample_rate, time_second):
@@ -15,18 +21,18 @@ def record_sound(sample_rate, time_second):
     Returns:
         _type_: _description_
     """
-    # Parâmetros de gravação    
-    fs = sample_rate    
+    # Parâmetros de gravação
+
+    fs = sample_rate
     seconds = time_second
     print("Gravando...")
     # Grava o áudio
-    audio = sd.rec(int(seconds * fs), samplerate=fs, channels=2, dtype='float64')
+    audio = sd.rec(
+        int(seconds * fs), samplerate=fs, channels=1, dtype='float64')
     sd.wait()  # Espera a gravação finalizar
     time = np.linspace(0, seconds, num=len(audio))  # Eixo do tempo
     # Salva o áudio no formato WAV
-    # now = datetime.now()
-    # timestamp = now.strftime("%Y-%m-%d-%H-%M-%S")
-    # name_file_audio = f'gravacao.wav'+'_'+str(timestamp)
+
     write("16khz.wav", fs, np.int16(audio * 32767))
     print("Gravação finalizada e salva como 'gravacao.wav'")
     return audio, time
@@ -52,8 +58,7 @@ def plot_sound(audio, time):
     print(f"Gráfico salvo como '{output_file}'")
     # Exibindo o gráfico
     plt.show()
-    
 
 
 audio, time = record_sound(time_second=5, sample_rate=16000)
-plot_sound(audio, time)
+# # # plot_sound(audio, time)
